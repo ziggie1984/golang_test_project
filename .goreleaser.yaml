@@ -1,41 +1,50 @@
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
-project_name: "golang_test_project"
 before:
   hooks:
-    # You may remove this if you don't use go modules.
     - go mod tidy
-    # you may remove this if you don't need go generate
-    # - go generate ./...
+    - go mod verify
+    - go mod download
+
 builds:
-  - env:
-      - CGO_ENABLED=0
-    goos:
+  - goos:
       - linux
       - windows
       - darwin
-archives:
-  # - replacements:
-  #     darwin: Darwin
-  #     linux: Linux
-  #     windows: Windows
-  #     386: i386
-  #     amd64: x86_64
+      - freebsd
 
-  - format: binary
+    goarch:
+      - amd64
+      - arm
+      - arm64
+
+    binary: regolancer
+
+    main: main.go
 
 checksum:
   name_template: 'checksums.txt'
+
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
-changelog:
-  sort: asc
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
+  name_template: SNAPSHOT-{{ .Commit }}
 
+archives:
+  - name_template: "{{ tolower .ProjectName }}_{{.Version}}_{{.Os}}-{{.Arch}}"
+    replacements:
+      darwin: macOS
+      linux: Linux
+      windows: Windows
+      freebsd: FreeBSD
 
-# modelines, feel free to remove those if you don't want/use them:
-# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
-# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+    files:
+      - LICENSE
+      - config.toml.sample
+      - config.json.sample
+
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+
+release:
+  github:
+    owner: ziggie1984
+    name: golang_sample_project
