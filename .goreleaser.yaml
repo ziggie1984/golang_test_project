@@ -44,7 +44,3 @@ archives:
       - goos: windows
         format: zip
 
-release:
-  github:
-    owner: ziggie1984
-    name: golang_sample_project
